@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    # The 'address' of your database. 'localhost' is your computer,
+    # '5432' is the default Postgres port, and 'mydb' is your database name.
+    url: jdbc:postgresql://${db.host}:${db.port}/${db.name}
+    # The credentials you set up in your Docker container or local Postgres install.
+    username: ${db.username}
+    password: ${db.password}
+    # Tells Spring which helper library (driver) to use to talk to PostgreSQL.
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    # Tells Hibernate (the engine inside JPA) to use PostgreSQL-specific SQL
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      # 'update' is the most popular for dev. It looks at your Java @Entity
+      # classes and automatically creates or modifies tables to match them.
+      ddl-auto: update
+    # When set to true, every time Spring talks to the DB, it prints the
+    # actual SQL command in your terminal. Great for debugging!
+    show-sql: true
+
+db:
+  name: _LicHub
+  host: localhost
+  port: 9000
+  username: dev
+  password: dev
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:

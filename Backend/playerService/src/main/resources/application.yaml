@@ -1,3 +1,5 @@
 spring:
   application:
     name: playerService
+  profiles:
+    active: dev

@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:18.4
+    container_name: postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: _LicHub
+
+    ports:
+      - "9000:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  playerService:
+    build: ./playerService
+    image: 4LicHub-playerService:1.0
+    container_name: playerService
+
+    ports:
+      - "5000:5000"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_NAME: _LicHub
+
+volumes:
+  postgres_data:
