@@ -15,6 +15,7 @@ spring:
       # 'update' is the most popular for dev. It looks at your Java @Entity
       # classes and automatically creates or modifies tables to match them.
       ddl-auto: update
+
     # When set to true, every time Spring talks to the DB, it prints the
     # actual SQL command in your terminal. Great for debugging!
     show-sql: true
@@ -29,6 +30,19 @@ db:
 
 management:
   endpoints:
+    access:
+      default: none
     web:
       exposure:
-        include: "*"
+        include: "beans, mappings, health"
+  endpoint:
+    beans:
+      access: read_only
+    mappings:
+      access: read_only
+    health:
+      access: read_only
+    env:
+      access: none
+    configprops:
+      access: none
