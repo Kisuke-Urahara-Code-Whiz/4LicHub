@@ -10,7 +10,7 @@ import lombok.ToString;
 public class AuthRequest {
 
     private String name;
-    private String password = null ;
-    private String email = null ;
+    private String password;
+    private String email;
 
 }

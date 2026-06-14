@@ -17,7 +17,7 @@ services:
 
   playerService:
     build: ./playerService
-    image: players-service:1.0.1
+    image: players-service:1.0.5
     container_name: playerService
 
     ports:
@@ -30,6 +30,7 @@ services:
       DB_PASSWORD: dev
       DB_HOST: postgres
       DB_PORT: 5432
+      JWT_SECRET: rG7xN9pLmQ2vYk8HfT5sZw4JcUaE1BnX6mPdR3qLsV8tHyK7iFoW9eAzC2uMbX5nQ
 
     depends_on:
       - postgres

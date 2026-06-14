@@ -46,3 +46,6 @@ management:
       access: none
     configprops:
       access: none
+
+jwt:
+  secret: rG7xN9pLmQ2vYk8HfT5sZw4JcUaE1BnX6mPdR3qLsV8tHyK7iFoW9eAzC2uMbX5nQ
