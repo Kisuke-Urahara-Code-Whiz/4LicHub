@@ -2,7 +2,7 @@ spring:
   application:
     name: playerService
   profiles:
-    active: dev
+    active: (ACTIVE PROFILE)
 
 server:
   port: 5000

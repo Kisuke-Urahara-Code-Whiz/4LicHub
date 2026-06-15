@@ -8,32 +8,47 @@ services:
       - "9000:5432"
 
     environment:
-      POSTGRES_USER: dev
-      POSTGRES_PASSWORD: dev
-      POSTGRES_DB: _LicHub
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
   playerService:
     build: ./playerService
-    image: players-service:1.0.5
+    image: players-service:1.1.3
     container_name: playerService
 
     ports:
       - "5000:5000"
 
     environment:
-      SPRING_PROFILES_ACTIVE: dev
-      DB_NAME: _LicHub
-      DB_USERNAME: dev
-      DB_PASSWORD: dev
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
       DB_HOST: postgres
       DB_PORT: 5432
-      JWT_SECRET: rG7xN9pLmQ2vYk8HfT5sZw4JcUaE1BnX6mPdR3qLsV8tHyK7iFoW9eAzC2uMbX5nQ
+      JWT_SECRET: ${JWT_SECRET}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
 
     depends_on:
       - postgres
+      - redis
 
 volumes:
   postgres_data:
+  redis-data:
