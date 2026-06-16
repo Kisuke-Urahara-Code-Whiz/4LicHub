@@ -1,21 +1,26 @@
 package _LicHub.Backend.playerService.controllers;
 
+import com.bastiaanjansen.otp.TOTPGenerator;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import _LicHub.Backend.playerService.utilities.EmailUtil;
+import _LicHub.Backend.playerService.services.EmailService;
+import jakarta.mail.MessagingException;
 
 @Controller
 @RequestMapping("/playerService")
 public class PlayerServiceController {
 
-    EmailUtil emailUtil;
+    EmailService emailService;
+    TOTPGenerator totpGenerator;
 
-    PlayerServiceController(EmailUtil emailUtil){
-        this.emailUtil = emailUtil;
+    PlayerServiceController(EmailService emailService, TOTPGenerator totpGenerator){
+        this.emailService = emailService;
+        this.totpGenerator = totpGenerator;
     }
 
     @GetMapping
@@ -24,8 +29,8 @@ public class PlayerServiceController {
     }
 
     @PostMapping
-    public ResponseEntity<?> post(){
-        emailUtil.sendTextEmail("spyethanace@gmail.com", "Hello", "Email is working");
+    public ResponseEntity<?> post() throws MessagingException {
+        emailService.sendAuthEmail("spyethanace@gmail.com", "Tanzu6912", totpGenerator.now());
         return ResponseEntity.ok("Email sent");
     }
 }

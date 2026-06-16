@@ -2,6 +2,7 @@ package _LicHub.Backend.playerService.handlers;
 
 import _LicHub.Backend.playerService.dtos.ErrorResponse;
 import _LicHub.Backend.playerService.exceptions.InvalidCredentialsException;
+import jakarta.mail.MessagingException;
 import jakarta.validation.ConstraintViolationException;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -48,5 +49,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse(false, ex.getMessage()));
+    }
+
+    @ExceptionHandler(MessagingException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(MessagingException ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(false, "Error Sending Email"));
     }
 }

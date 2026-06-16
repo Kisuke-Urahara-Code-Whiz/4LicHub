@@ -77,3 +77,6 @@ db:
 redis:
   host: (REDIS HOST)
   port: (REDIS PORT)
+
+otp:
+  secret: (TOTP GENERATOR SECRET)
