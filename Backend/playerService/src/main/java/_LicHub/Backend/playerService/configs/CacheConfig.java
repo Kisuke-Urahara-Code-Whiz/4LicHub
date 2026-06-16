@@ -23,12 +23,12 @@ public class CacheConfig {
         Map<String, RedisCacheConfiguration> specificConfigs = new HashMap<>();
 
         specificConfigs.put("otps", RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(10))
+                .entryTtl(Duration.ofMinutes(5))
                 .disableCachingNullValues());
 
 
         specificConfigs.put("tempAuthRequests", RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(10))
+                .entryTtl(Duration.ofMinutes(5))
                 .disableCachingNullValues());
 
 

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import _LicHub.Backend.playerService.dtos.OtpRequest;
+import _LicHub.Backend.playerService.enums.AuthType;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 
@@ -53,7 +54,7 @@ public class AuthController {
     @PostMapping("/validate")
     public ResponseEntity<AuthResponse> validate(@RequestBody OtpRequest otpRequest){
         AuthResponse authResponse = authService.validateOtp(otpRequest);
-        if(otpRequest.getAuthType().equals("register"))
+        if(otpRequest.getAuthType().equals(AuthType.REGISTER))
             return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
         return ResponseEntity.status(HttpStatus.OK).body(authResponse);
     }

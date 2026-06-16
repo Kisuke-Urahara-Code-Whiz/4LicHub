@@ -1,20 +1,14 @@
 package _LicHub.Backend.playerService.services;
 
 import com.bastiaanjansen.otp.TOTPGenerator;
-
 import org.springframework.cache.Cache;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
-
-import _LicHub.Backend.playerService.dtos.AuthRequest;
-import _LicHub.Backend.playerService.dtos.AuthResponse;
-import _LicHub.Backend.playerService.dtos.OtpRequest;
-import _LicHub.Backend.playerService.dtos.PlayerSessionResponse;
+import _LicHub.Backend.playerService.dtos.*;
 import _LicHub.Backend.playerService.entities.Player;
+import _LicHub.Backend.playerService.enums.AuthType;
 import _LicHub.Backend.playerService.exceptions.InvalidCredentialsException;
 import _LicHub.Backend.playerService.repositories.PlayerRepository;
 import _LicHub.Backend.playerService.utilities.JWTUtil;
@@ -52,7 +46,10 @@ public class AuthService {
         log.info("In register -> ");
         log.info(newPlayer.toString());
         newPlayer.setPassword(passwordEncoder.encode(newPlayer.getPassword()));
-        sendOTP(newPlayer);
+        sendOTP(PlayerCache.builder()
+                .authType(AuthType.REGISTER)
+                .player(newPlayer)
+                .build());
     }
 
     public void login(AuthRequest authRequest) throws MessagingException {
@@ -74,35 +71,37 @@ public class AuthService {
         if (!passwordEncoder.matches( authRequest.getPassword(), player.getPassword()))
         { throw new InvalidCredentialsException("Invalid credentials"); }
 
-        sendOTP(player);
+        sendOTP(PlayerCache.builder()
+                .authType(AuthType.LOGIN)
+                .player(player)
+                .build());
     }
 
-    public void sendOTP(Player player) throws MessagingException {
+    public void sendOTP(PlayerCache player) throws MessagingException {
         String otp = totpGenerator.now();
-        if(otpCache!=null) otpCache.put(player.getEmail(), otp);
-        if(playerCache!=null) playerCache.put(player.getEmail(), player);
+        if(otpCache!=null) otpCache.put(player.getPlayer().getEmail(), otp);
+        if(playerCache!=null) playerCache.put(player.getPlayer().getEmail(), player);
         log.info("In send -> ");
         log.info(otp);
-        emailService.sendAuthEmail(player.getEmail(), player.getUserName(), otp);
+        emailService.sendAuthEmail(player.getPlayer().getEmail(), player.getPlayer().getUserName(), otp);
     }
 
     public void resendOtp(String email) throws MessagingException {
-        if (otpCache == null || playerCache == null) return;
-        String otp = otpCache.get(email, String.class);
-        Player player = playerCache.get(email, Player.class);
+        if (otpCache == null || playerCache == null) throw new IllegalStateException("Redis cache unavailable");
 
-        if (otp == null || player == null) throw new RuntimeException("Session expired, cannot resend OTP");
-        log.info("In resend -> ");
-        log.info(otp);
-        log.info(player.toString());
+        PlayerCache player = playerCache.get(email, PlayerCache.class);
+        if (player == null) throw new RuntimeException("Player unavailable in Redis cache");
 
-        emailService.sendAuthEmail(player.getEmail(), player.getUserName(), otp);
+        String otp = totpGenerator.now();
+        otpCache.put(email, otp);
+
+        emailService.sendAuthEmail(email, player.getPlayer().getUserName(), otp);
     }
 
-    public AuthResponse validateOtp(OtpRequest otpRequest){
+    public AuthResponse validateOtp(OtpRequest otpRequest) {
 
         log.info("In validate -> ");
-        if (otpCache == null || playerCache == null) return null;
+        if (otpCache == null || playerCache == null) throw new IllegalStateException("Redis cache unavailable");
 
         String savedOtp = otpCache.get(otpRequest.getEmail(), String.class);
         String typedOtp = otpRequest.getOtp();
@@ -112,11 +111,14 @@ public class AuthService {
         if(savedOtp==null) throw new RuntimeException("Session expired, opt for a new otp");
         if(!savedOtp.equals(typedOtp)) throw new InvalidCredentialsException("Invalid Otp");
 
-        Player player = playerCache.get(otpRequest.getEmail(), Player.class);
+        PlayerCache player = playerCache.get(otpRequest.getEmail(), PlayerCache.class);
 
-        if(player==null) throw new RuntimeException("Player not found");
+        if(player==null) throw new RuntimeException("Player unavailable in Redis cache");
+        if(!player.getAuthType().equals(otpRequest.getAuthType())) throw new RuntimeException("Auth Type Mismatch");
+
+        Player response = player.getPlayer();
         log.info("Saved Player object ->  : {}", player.toString());
-        if(otpRequest.getAuthType().equals("register")) playerRepository.save(player);
+        if(otpRequest.getAuthType().equals(AuthType.REGISTER)) playerRepository.save(player.getPlayer());
 
         log.info("In validate otp -> Reached here it means its true -> ");
         log.info("Details added in database");
@@ -125,16 +127,13 @@ public class AuthService {
         playerCache.evict(otpRequest.getEmail());
         log.info("Cache Evicted");
 
-        String jwt = jwtUtil.generateToken(player);
-        log.info("JWT Token generated");
-
         return AuthResponse.builder()
                 .success(true)
                 .body(PlayerSessionResponse.builder()
-                        .name(player.getUserName())
-                        .email(player.getEmail())
-                        .jwt(jwtUtil.generateToken(player))
-                        .role(player.getRole())
+                        .name(response.getUserName())
+                        .email(response.getEmail())
+                        .jwt(jwtUtil.generateToken(response))
+                        .role(response.getRole())
                         .build()).build();
 
     }
