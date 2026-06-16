@@ -2,13 +2,11 @@ package _LicHub.Backend.playerService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.util.TimeZone;
 
 @SpringBootApplication
-@EnableCaching
 @EnableAsync
 public class PlayerServiceApplication {
 

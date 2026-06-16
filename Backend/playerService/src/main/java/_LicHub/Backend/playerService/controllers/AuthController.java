@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import _LicHub.Backend.playerService.dtos.OtpRequest;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 
 import _LicHub.Backend.playerService.dtos.AuthRequest;
@@ -24,23 +26,36 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signup(@Valid @RequestBody AuthRequest authRequest){
-        AuthResponse response = authService.signUp(
-                Player.builder()
-                        .email(authRequest.getEmail())
-                        .userName(authRequest.getName())
-                        .password(authRequest.getPassword())
-                        .build()
+    @PostMapping("/register")
+    public ResponseEntity<?> signup(@Valid @RequestBody AuthRequest authRequest) throws MessagingException {
+        authService.register(Player.builder()
+                .email(authRequest.getEmail())
+                .userName(authRequest.getName())
+                .password(authRequest.getPassword())
+                .build()
         );
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Otp Sent");
 
     }
 
-    @PostMapping("/signin")
-    public ResponseEntity<AuthResponse> signin(@Valid @RequestBody AuthRequest authRequest){
-        AuthResponse response = authService.signIn(authRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
+    @PostMapping("/login")
+    public ResponseEntity<?> signin(@Valid @RequestBody AuthRequest authRequest) throws MessagingException {
+        authService.login(authRequest);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Otp Sent");
     }
+
+    @PostMapping("/resendOtp")
+    public ResponseEntity<?> resendOTP(@Valid @RequestBody String email) throws MessagingException {
+        authService.resendOtp(email);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Otp Sent");
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<AuthResponse> validate(@RequestBody OtpRequest otpRequest){
+        AuthResponse authResponse = authService.validateOtp(otpRequest);
+        if(otpRequest.getAuthType().equals("register"))
+            return ResponseEntity.status(HttpStatus.CREATED).body(authService.validateOtp(otpRequest));
+        return ResponseEntity.status(HttpStatus.OK).body(authService.validateOtp(otpRequest));
+    }
+
 }
