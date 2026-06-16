@@ -54,8 +54,8 @@ public class AuthController {
     public ResponseEntity<AuthResponse> validate(@RequestBody OtpRequest otpRequest){
         AuthResponse authResponse = authService.validateOtp(otpRequest);
         if(otpRequest.getAuthType().equals("register"))
-            return ResponseEntity.status(HttpStatus.CREATED).body(authService.validateOtp(otpRequest));
-        return ResponseEntity.status(HttpStatus.OK).body(authService.validateOtp(otpRequest));
+            return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(authResponse);
     }
 
 }

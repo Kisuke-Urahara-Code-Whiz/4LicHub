@@ -23,7 +23,7 @@ public class AppConfig {
                     builder.withPasswordLength(6);
                     builder.withAlgorithm(HMACAlgorithm.SHA256);
                 })
-                .withPeriod(Duration.ofSeconds(6000))
+                .withPeriod(Duration.ofSeconds(1))
                 .build();
     }
 

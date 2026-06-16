@@ -59,6 +59,10 @@ management:
     configprops:
       access: none
 
+logging:
+  level:
+    _LicHub.Backend.playerService.services.AuthService: WARN
+
 jwt:
   secret: (JWT SECRET)
 

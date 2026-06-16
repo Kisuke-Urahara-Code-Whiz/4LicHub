@@ -9,9 +9,11 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-public class AuthResponse {
+public class PlayerSessionResponse {
 
-   private boolean success;
-   private Object body;
+    private String name;
+    private String jwt;
+    private String email;
+    private String role;
 
 }
