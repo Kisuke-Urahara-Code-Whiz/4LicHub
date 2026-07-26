@@ -1,0 +1,86 @@
+spring:
+  datasource:
+    # The 'address' of your database. 'localhost' is your computer,
+    # '5432' is the default Postgres port, and 'mydb' is your database name.
+    url: jdbc:postgresql://${db.host}:${db.port}/${db.name}
+    # The credentials you set up in your Docker container or local Postgres install.
+    username: ${db.username}
+    password: ${db.password}
+    # Tells Spring which helper library (driver) to use to talk to PostgreSQL.
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    # Tells Hibernate (the engine inside JPA) to use PostgreSQL-specific SQL
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      # 'update' is the most popular for dev. It looks at your Java @Entity
+      # classes and automatically creates or modifies tables to match them.
+      ddl-auto: update
+
+    # When set to true, every time Spring talks to the DB, it prints the
+    # actual SQL command in your terminal. Great for debugging!
+    show-sql: true
+  data:
+    redis:
+      host: ${redis.host}
+      port: ${redis.port}
+      connect-timeout: 2000
+  cache:
+    cache-names:
+      - otps
+      - tempAuthRequests
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${mail.username}
+    password: ${mail.password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+management:
+  endpoints:
+    access:
+      default: none
+    web:
+      exposure:
+        include: "beans, mappings, health"
+  endpoint:
+    beans:
+      access: read_only
+    mappings:
+      access: read_only
+    health:
+      access: read_only
+    env:
+      access: none
+    configprops:
+      access: none
+
+logging:
+  level:
+    _LicHub.Backend.playerService.services.AuthService: WARN
+
+jwt:
+  secret: (JWT SECRET)
+
+mail:
+  username: (EMAIL FOR SENDING EMAIL)
+  password: (SENDER EMAIL'S APP PASSWORD)
+
+
+db:
+  name: (DATABASE NAME)
+  host: (DATABASE HOST)
+  port: (DATABASE PORT)
+  username: (DATABASE USERNAME)
+  password: (DATABASE PASSWORD)
+
+redis:
+  host: (REDIS HOST)
+  port: (REDIS PORT)
+
+otp:
+  secret: (TOTP GENERATOR SECRET)

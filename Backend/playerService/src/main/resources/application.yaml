@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: playerService
+  profiles:
+    active: (ACTIVE PROFILE)
+
+server:
+  port: 5000
